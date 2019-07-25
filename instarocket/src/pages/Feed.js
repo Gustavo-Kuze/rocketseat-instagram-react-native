@@ -8,7 +8,7 @@ import {
   StyleSheet
 } from "react-native";
 import camera from "../assets/camera.png";
-import api from "../services/api";
+import api, { baseURL } from "../services/api";
 import more from "../assets/more.png";
 import like from "../assets/like.png";
 import send from "../assets/send.png";
@@ -32,13 +32,13 @@ export default class Feed extends Component {
   };
 
   async componentDidMount() {
-    this.registerToSocket();
     const response = await api.get("posts");
     this.setState({ feed: response.data });
+    this.registerToSocket();
   }
 
   registerToSocket = () => {
-    const socket = io("http://10.1.1.203:3333");
+    const socket = io(baseURL);
 
     socket.on("post", newPost => {
       this.setState({ feed: [newPost, ...this.state.feed] });
@@ -76,7 +76,7 @@ export default class Feed extends Component {
 
               <Image
                 style={styles.feedImage}
-                source={{ uri: `http://10.1.1.203:3333/files/${item.image}` }}
+                source={{ uri: `${baseURL}/files/${item.image}` }}
               />
 
               <View style={styles.feedItemFooter}>

@@ -21,7 +21,7 @@ export default createAppContainer(
       New
     },
     {
-      initialRouteName: "New",
+      initialRouteName: "Feed",
       defaultNavigationOptions,
       mode: "modal"
     }
