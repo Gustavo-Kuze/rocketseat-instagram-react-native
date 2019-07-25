@@ -7,6 +7,7 @@ import {
   Image,
   StyleSheet
 } from "react-native";
+import ImagePicker from "react-native-image-picker";
 
 export default class New extends Component {
   static navigationOptions = {
@@ -17,15 +18,63 @@ export default class New extends Component {
     author: "",
     description: "",
     place: "",
-    hashtags: ""
+    hashtags: "",
+    preview: null,
+    image: null,
+  };
+
+  handleSelectImage = () => {
+    ImagePicker.showImagePicker(
+      {
+        title: "Selecione uma imagem"
+      },
+      upload => {
+        if (upload.error) {
+          console.log("Ocorreu um erro ao capturar uma imagem");
+        } else if (upload.didCancel) {
+          console.log("O usuário cancelou a escolha da imagem");
+        } else {
+          const preview = {
+            uri: `data:image/jpeg;base64,${upload.data}`
+          };
+
+          let prefix;
+          let ext;
+
+          if (upload.fileName) {
+            [prefix, ext] = upload.fileName.split(".");
+            ext = ext.toLocaleLowerCase() === "heic" ? "jpg" : ext;
+          } else {
+            prefix = new Date().getTime();
+            ext = "jpg";
+          }
+
+          const image = {
+            uri: upload.uri,
+            type: upload.type,
+            name: `${prefix}.${ext}`
+          };
+
+          this.setState({ preview, image });
+        }
+      }
+    );
   };
 
   render() {
     return (
       <View style={styles.container}>
-        <TouchableOpacity style={styles.selectButton} onPress={() => {}}>
+        <TouchableOpacity
+          style={styles.selectButton}
+          onPress={this.handleSelectImage}
+        >
           <Text style={styles.selectButtonText}>Selecionar Imagem</Text>
         </TouchableOpacity>
+
+        {this.state.preview && (
+          <Image style={styles.preview} source={this.state.preview} />
+        )}
+
         <TextInput
           autoCapitalize="none"
           autoCorrect={false}
