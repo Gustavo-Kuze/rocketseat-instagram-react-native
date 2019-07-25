@@ -32,25 +32,29 @@ export default class Feed extends Component {
   };
 
   async componentDidMount() {
+    this.registerToSocket();
     const response = await api.get("posts");
-    debugger
     this.setState({ feed: response.data });
   }
 
   registerToSocket = () => {
     const socket = io("http://10.1.1.203:3333");
 
-    socket.on("posts", newPost => {
+    socket.on("post", newPost => {
       this.setState({ feed: [newPost, ...this.state.feed] });
     });
 
-    socket.on("like", likePost => {
-      this.setState({ 
-        feed: this.state.feed.map(post => {
-          return post._id === likePost._id ? likePost : post;
-        }) 
+    socket.on("like", likedPost => {
+      this.setState({
+        feed: this.state.feed.map(post =>
+          post._id === likedPost._id ? likedPost : post
+        )
       });
     });
+  };
+
+  handleLike = id => {
+    api.post(`/posts/${id}/like`);
   };
 
   render() {
@@ -77,7 +81,7 @@ export default class Feed extends Component {
 
               <View style={styles.feedItemFooter}>
                 <View style={styles.actions}>
-                  <TouchableOpacity onPress={() => {}}>
+                  <TouchableOpacity onPress={() => this.handleLike(item._id)}>
                     <Image style={styles.action} source={like} />
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => {}}>
